@@ -1,0 +1,411 @@
+
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>Sales Orders | OrderAudit</title>
+
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+
+    <style>
+        .orders-container {
+            max-width: 1100px;
+            margin: 40px auto;
+            padding: 0 20px;
+            font-family: Arial, sans-serif;
+        }
+
+        .page-title {
+            color: #254d3c;
+            margin-bottom: 8px;
+        }
+
+        .subtitle {
+            color: #66756e;
+            margin-bottom: 25px;
+        }
+
+        .orders-card {
+            background: white;
+            padding: 25px;
+            border-radius: 12px;
+            margin-bottom: 30px;
+            box-shadow: 0 3px 12px rgba(0,0,0,0.07);
+        }
+
+        .orders-card h2 {
+            color: #254d3c;
+            margin-top: 0;
+        }
+
+        .order-form {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 18px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .form-group label {
+            font-weight: bold;
+            color: #354d40;
+        }
+
+        .form-group input,
+        .form-group select {
+            padding: 12px;
+            border: 1px solid #cdd9d1;
+            border-radius: 7px;
+            font-size: 15px;
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        .save-button,
+        .approve-button {
+            background: #286647;
+            color: white;
+            border: none;
+            border-radius: 7px;
+            padding: 10px 16px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        .save-button {
+            padding: 13px 25px;
+            font-size: 15px;
+        }
+
+        .save-button:hover,
+        .approve-button:hover {
+            background: #1d5036;
+        }
+
+        .form-actions {
+            grid-column: 1 / -1;
+        }
+
+        .table-scroll {
+            overflow-x: auto;
+        }
+
+        .orders-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+
+        .orders-table th {
+            background: #e8f1eb;
+            color: #254d3c;
+            text-align: left;
+            padding: 14px;
+        }
+
+        .orders-table td {
+            padding: 14px;
+            border-bottom: 1px solid #e5e9e6;
+        }
+
+        .status {
+            font-weight: bold;
+            color: #a36a13;
+        }
+
+        .approved-status {
+            color: #217a48;
+            font-weight: bold;
+        }
+
+        .success-message {
+            color: #217a48;
+            margin-bottom: 18px;
+        }
+
+        .error-message {
+            color: #bd3030;
+            margin-bottom: 18px;
+        }
+
+        .back-link {
+            display: inline-block;
+            margin-bottom: 20px;
+            color: #286647;
+            text-decoration: none;
+            font-weight: bold;
+        }
+
+        .action-group {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 10px;
+        }
+
+        .edit-form {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+
+        .edit-input {
+            width: 80px;
+            padding: 9px;
+            border: 1px solid #cdd9d1;
+            border-radius: 6px;
+            font-size: 14px;
+        }
+
+        .edit-button {
+            background: #e8f1eb;
+            color: #254d3c;
+            border: 1px solid #b7cfc0;
+            border-radius: 6px;
+            padding: 9px 12px;
+            cursor: pointer;
+        }
+
+        .edit-button:hover {
+            background: #d6e8dc;
+        }
+
+        @media (max-width: 700px) {
+            .order-form {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="orders-container">
+
+    <a th:href="@{/}" class="back-link">
+        ← Back to Dashboard
+    </a>
+
+    <h1 class="page-title">Sales Order Management</h1>
+
+    <p class="subtitle">
+        Create customer orders and track their progress.
+    </p>
+
+    <!-- CREATE ORDER -->
+
+    <div class="orders-card">
+
+        <h2>Create New Order</h2>
+
+        <p class="success-message"
+           th:if="${param.success != null}">
+            Sales order created successfully!
+        </p>
+
+        <p class="success-message"
+           th:if="${successMessage != null}"
+           th:text="${successMessage}">
+        </p>
+
+        <p class="error-message"
+           th:if="${error != null}"
+           th:text="${error}">
+        </p>
+
+        <form class="order-form"
+              th:action="@{/orders/save}"
+              method="post">
+
+            <div class="form-group">
+                <label for="customerId">Customer</label>
+
+                <select id="customerId"
+                        name="customerId"
+                        required>
+
+                    <option value="">Select Customer</option>
+
+                    <option th:each="customer : ${customers}"
+                            th:value="${customer.id}"
+                            th:text="${customer.name}">
+                    </option>
+
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="productId">Product</label>
+
+                <select id="productId"
+                        name="productId"
+                        required>
+
+                    <option value="">Select Product</option>
+
+                    <option th:each="product : ${products}"
+                            th:value="${product.id}"
+                            th:text="${product.productName}">
+                    </option>
+
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="quantity">
+                    Quantity (Packets)
+                </label>
+
+                <input type="number"
+                       id="quantity"
+                       name="quantity"
+                       min="1"
+                       required
+                       placeholder="Enter packet quantity">
+            </div>
+
+            <div class="form-actions">
+                <button type="submit" class="save-button">
+                    Create Order
+                </button>
+            </div>
+
+        </form>
+    </div>
+
+    <!-- ORDER HISTORY -->
+
+    <div class="orders-card">
+
+        <h2>Sales Order History</h2>
+
+        <div class="table-scroll">
+
+            <table class="orders-table">
+
+                <thead>
+                    <tr>
+                        <th>Order ID</th>
+                        <th>Customer</th>
+                        <th>Product</th>
+                        <th>Quantity</th>
+                        <th>Status</th>
+                        <th>Order Date</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+
+                    <tr th:each="order : ${orders}">
+
+                        <td th:text="${order.id}"></td>
+
+                        <td th:text="${order.customer.name}"></td>
+
+                        <td th:text="${order.product.productName}"></td>
+
+                        <td th:text="${order.quantity}"></td>
+
+                        <td class="status"
+                            th:text="${order.status}">
+                        </td>
+
+                        <td th:text="${order.orderDate}"></td>
+
+                        <td>
+
+                            <div class="action-group">
+
+                                <!-- EDIT PENDING ORDER -->
+
+                                <form th:if="${order.status == 'PENDING'}"
+                                      th:action="@{/orders/update/{id}(id=${order.id})}"
+                                      method="post"
+                                      class="edit-form">
+
+                                    <input type="number"
+                                           name="quantity"
+                                           min="1"
+                                           required
+                                           class="edit-input"
+                                           aria-label="Edit order quantity"
+                                           th:value="${order.quantity}">
+
+                                    <button type="submit"
+                                            class="edit-button">
+                                        Update
+                                    </button>
+
+                                </form>
+
+                                <!-- APPROVE ORDER -->
+
+                                <form th:if="${order.status == 'PENDING'}"
+                                      th:action="@{/orders/approve/{id}(id=${order.id})}"
+                                      method="post">
+
+                                    <button type="submit"
+                                            class="approve-button">
+                                        Approve
+                                    </button>
+
+                                </form>
+
+                                <!-- DISPATCH APPROVED ORDER -->
+
+                                <span th:if="${order.status == 'APPROVED'}"
+                                      class="approved-status">
+                                    Approved ✓
+                                </span>
+
+                                <form th:if="${order.status == 'APPROVED'}"
+                                      th:action="@{/orders/dispatch/{id}(id=${order.id})}"
+                                      method="post"
+                                      onsubmit="return confirm('Are you sure you want to dispatch this order?');">
+
+                                    <button type="submit"
+                                            class="approve-button">
+                                        Dispatch
+                                    </button>
+
+                                </form>
+
+                                <!-- DISPATCHED STATUS -->
+
+                                <span th:if="${order.status == 'DISPATCHED'}"
+                                      class="approved-status">
+                                    Dispatched ✓
+                                </span>
+
+                            </div>
+
+                        </td>
+
+                    </tr>
+
+                    <tr th:if="${#lists.isEmpty(orders)}">
+                        <td colspan="7">
+                            No sales orders created yet.
+                        </td>
+                    </tr>
+
+                </tbody>
+
+            </table>
+
+        </div>
+    </div>
+
+</div>
+
+</body>
+</html>

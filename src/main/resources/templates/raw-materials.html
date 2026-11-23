@@ -1,0 +1,76 @@
+
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OrderAudit | Raw Materials</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+
+<div class="main-content">
+
+    <header class="topbar">
+        <h2>Raw Material Management</h2>
+        <a href="/" class="quick-card">Back to Dashboard</a>
+    </header>
+
+    <section class="welcome">
+        <h1>Add New Raw Material</h1>
+        <p>Maintain the list of materials used in production.</p>
+    </section>
+
+    <form th:action="@{/raw-materials/save}" method="post"
+          class="customer-form">
+
+        <input type="text" name="materialName"
+               placeholder="Material Name" required>
+
+        <select name="unit" required>
+            <option value="">Select Unit</option>
+            <option value="kg">Kilograms (kg)</option>
+            <option value="litre">Litres (L)</option>
+            <option value="pieces">Pieces</option>
+        </select>
+
+        <button type="submit">Save Material</button>
+
+    </form>
+
+    <h2 class="section-title">Raw Material List</h2>
+
+    <div class="customer-list">
+        <table>
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Material Name</th>
+                    <th>Unit</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+
+            <tbody>
+                <tr th:each="material : ${rawMaterials}">
+                    <td th:text="${material.id}"></td>
+                    <td th:text="${material.materialName}"></td>
+                    <td th:text="${material.unit}"></td>
+                    <td>
+                        <a th:href="@{/raw-materials/delete/{id}(id=${material.id})}">
+                            Delete
+                        </a>
+                    </td>
+                </tr>
+
+                <tr th:if="${#lists.isEmpty(rawMaterials)}">
+                    <td colspan="4">No raw materials added yet.</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+</div>
+
+</body>
+</html>

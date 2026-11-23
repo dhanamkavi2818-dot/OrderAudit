@@ -1,0 +1,134 @@
+
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OrderAudit | Bill of Materials</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+
+<div class="main-content">
+
+    <header class="topbar">
+        <h2>Bill of Materials (BOM)</h2>
+        <a href="/" class="quick-card">Back to Dashboard</a>
+    </header>
+
+    <section class="welcome">
+        <h1>Create Product Recipe</h1>
+        <p>Define the raw materials required for each production batch.</p>
+    </section>
+
+    <form th:action="@{/boms/save}" method="post" class="customer-form">
+
+        <select name="productId" required>
+            <option value="">Select Product</option>
+            <option th:each="product : ${products}"
+                    th:value="${product.id}"
+                    th:text="${product.productName + ' - ' + product.packSize}">
+            </option>
+        </select>
+
+        <input type="number" name="batchOutputPackets"
+               placeholder="Expected Packets per Batch"
+               min="1" required>
+
+        <button type="submit">Create BOM</button>
+
+    </form>
+
+    <h2 class="section-title">Existing BOM Recipes</h2>
+
+    <div class="customer-list">
+        <table>
+            <thead>
+                <tr>
+                    <th>BOM ID</th>
+                    <th>Product</th>
+                    <th>Expected Output</th>
+                </tr>
+            </thead>
+
+            <tbody>
+                <tr th:each="bom : ${boms}">
+                    <td th:text="${bom.id}"></td>
+                    <td th:text="${bom.product.productName}"></td>
+                    <td th:text="${bom.batchOutputPackets + ' packets'}"></td>
+                </tr>
+
+                <tr th:if="${#lists.isEmpty(boms)}">
+                    <td colspan="3">No BOM recipes created yet.</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <section class="welcome" style="margin-top: 40px;">
+        <h1>Add Raw Materials to BOM</h1>
+        <p>Select a BOM and specify the quantity of each material required.</p>
+    </section>
+
+    <form th:action="@{/boms/save-item}" method="post"
+          class="customer-form">
+
+        <select name="bomId" required>
+            <option value="">Select BOM</option>
+            <option th:each="bom : ${boms}"
+                    th:value="${bom.id}"
+                    th:text="${bom.product.productName + ' - BOM ' + bom.id}">
+            </option>
+        </select>
+
+        <select name="rawMaterialId" required>
+            <option value="">Select Raw Material</option>
+            <option th:each="material : ${rawMaterials}"
+                    th:value="${material.id}"
+                    th:text="${material.materialName + ' (' + material.unit + ')'}">
+            </option>
+        </select>
+
+        <input type="number" name="quantityRequired"
+               placeholder="Required Quantity"
+               step="0.001" min="0.001" required>
+
+        <button type="submit">Add Material</button>
+
+    </form>
+
+</div>
+<h2>Recipe Ingredients</h2>
+
+<div th:each="bom : ${boms}" class="customer-list">
+
+    <h3 th:text="${bom.product.productName}"></h3>
+
+    <p>
+        Expected Output:
+        <span th:text="${bom.batchOutputPackets}"></span>
+        packets
+    </p>
+
+    <table>
+        <thead>
+            <tr>
+                <th>Raw Material</th>
+                <th>Quantity Required</th>
+                <th>Unit</th>
+            </tr>
+        </thead>
+
+        <tbody>
+            <tr th:each="item : ${itemsByBom.get(bom.id)}">
+                <td th:text="${item.rawMaterial.materialName}"></td>
+                <td th:text="${item.quantityRequired}"></td>
+                <td th:text="${item.rawMaterial.unit}"></td>
+            </tr>
+        </tbody>
+    </table>
+
+</div>
+
+</body>
+</html>

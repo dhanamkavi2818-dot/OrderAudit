@@ -1,0 +1,187 @@
+
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>Reports | OrderAudit</title>
+
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+
+    <style>
+        .reports-container {
+            max-width: 1100px;
+            margin: 40px auto;
+            padding: 0 20px;
+            font-family: Arial, sans-serif;
+        }
+
+        .page-title {
+            color: #254d3c;
+            margin-bottom: 8px;
+        }
+
+        .subtitle {
+            color: #66756e;
+            margin-bottom: 30px;
+        }
+
+        .reports-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 24px;
+        }
+
+        .report-card {
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 3px 12px rgba(0,0,0,0.07);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .report-card h2 {
+            color: #254d3c;
+            margin-top: 0;
+        }
+
+        .report-card p {
+            color: #66756e;
+            line-height: 1.6;
+            flex-grow: 1;
+        }
+
+        .download-button {
+            display: inline-block;
+            align-self: flex-start;
+            background: #286647;
+            color: white;
+            padding: 12px 20px;
+            border-radius: 7px;
+            text-decoration: none;
+            margin-top: 12px;
+            font-weight: bold;
+        }
+
+        .download-button:hover {
+            background: #1d5036;
+        }
+
+        .back-link {
+            display: inline-block;
+            margin-bottom: 20px;
+            color: #286647;
+            text-decoration: none;
+            font-weight: bold;
+        }
+
+        .tolerance-note {
+            display: inline-block;
+            background: #fff3e6;
+            color: #945a13;
+            padding: 7px 12px;
+            border-radius: 6px;
+            font-size: 13px;
+            font-weight: bold;
+            margin-top: 8px;
+        }
+
+        @media (max-width: 700px) {
+            .reports-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="reports-container">
+
+    <a th:href="@{/}" class="back-link">
+        ← Back to Dashboard
+    </a>
+
+    <h1 class="page-title">Reports & Exports</h1>
+
+    <p class="subtitle">
+        Access business reports for auditing,
+        inventory tracking, sales analysis,
+        and production performance.
+    </p>
+
+    <div class="reports-grid">
+
+        <!-- SALES REGISTER -->
+
+        <div class="report-card">
+
+            <h2>Sales Register</h2>
+
+            <p>
+                Export invoice numbers, customer details,
+                taxable amounts, GST calculations,
+                and total invoice values.
+            </p>
+
+            <a th:href="@{/reports/sales/csv}"
+               class="download-button">
+                Download Sales CSV
+            </a>
+
+        </div>
+
+        <!-- STOCK REPORT -->
+
+        <div class="report-card">
+
+            <h2>Stock Report</h2>
+
+            <p>
+                Export raw material and finished goods
+                stock balances for inventory auditing.
+            </p>
+
+            <a th:href="@{/reports/stock/csv}"
+               class="download-button">
+                Download Stock CSV
+            </a>
+
+        </div>
+
+        <!-- PRODUCTION VARIANCE REPORT -->
+
+        <div class="report-card">
+
+            <h2>Production Variance Report</h2>
+
+            <p>
+                Compare planned production with actual
+                output and raw material consumption.
+                Identify production shortages and
+                excessive material usage.
+            </p>
+
+            <div>
+                <span class="tolerance-note">
+                    Allowed Variance: ±3%
+                </span>
+            </div>
+
+            <a th:href="@{/production-variance}"
+               class="download-button">
+                View Variance Report
+            </a>
+
+        </div>
+
+    </div>
+
+</div>
+
+</body>
+</html>

@@ -1,0 +1,83 @@
+
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OrderAudit | Products</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+
+<div class="main-content">
+
+    <header class="topbar">
+        <h2>Product Management</h2>
+        <a href="/" class="quick-card">Back to Dashboard</a>
+    </header>
+
+    <section class="welcome">
+        <h1>Add New Product</h1>
+        <p>Enter the details of your factory products.</p>
+    </section>
+
+    <form th:action="@{/products/save}" method="post" class="customer-form">
+
+        <input type="text" name="productName"
+               placeholder="Product Name" required>
+
+        <input type="text" name="packSize"
+               placeholder="Pack Size (e.g. 200g)" required>
+
+        <input type="number" name="sellingPrice"
+               placeholder="Selling Price (₹)"
+               step="0.01" min="0" required>
+
+        <input type="number" name="gstRate"
+               placeholder="GST Rate (%)"
+               step="0.01" min="0" required>
+
+        <button type="submit">Save Product</button>
+
+    </form>
+
+    <h2 class="section-title">Product List</h2>
+
+    <div class="customer-list">
+        <table>
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Product Name</th>
+                    <th>Pack Size</th>
+                    <th>Selling Price</th>
+                    <th>GST Rate</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+
+            <tbody>
+                <tr th:each="product : ${products}">
+                    <td th:text="${product.id}"></td>
+                    <td th:text="${product.productName}"></td>
+                    <td th:text="${product.packSize}"></td>
+                    <td th:text="${product.sellingPrice}"></td>
+                    <td th:text="${product.gstRate + '%'}"></td>
+                    <td>
+                        <a th:href="@{/products/delete/{id}(id=${product.id})}">
+                            Delete
+                        </a>
+                    </td>
+                </tr>
+
+                <tr th:if="${#lists.isEmpty(products)}">
+                    <td colspan="6">No products added yet.</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+</div>
+
+</body>
+</html>

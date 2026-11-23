@@ -1,0 +1,287 @@
+
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Production Variance Report | OrderAudit</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: #f4f7f5;
+            color: #26352c;
+        }
+
+        .header {
+            background: #176b45;
+            color: white;
+            padding: 22px 35px;
+        }
+
+        .header h1 {
+            margin: 0;
+            font-size: 25px;
+        }
+
+        .header p {
+            margin: 7px 0 0;
+            color: #dcefe4;
+        }
+
+        .container {
+            max-width: 1150px;
+            margin: 30px auto;
+            padding: 0 20px;
+        }
+
+        .back-button {
+            display: inline-block;
+            background: #176b45;
+            color: white;
+            padding: 11px 18px;
+            border-radius: 6px;
+            text-decoration: none;
+            margin-bottom: 25px;
+        }
+
+        .back-button:hover {
+            background: #105233;
+        }
+
+        .card {
+            background: white;
+            border-radius: 10px;
+            padding: 25px;
+            margin-bottom: 25px;
+            box-shadow: 0 3px 12px rgba(0,0,0,0.06);
+        }
+
+        .card h2 {
+            margin-top: 0;
+            color: #176b45;
+            font-size: 21px;
+        }
+
+        .summary {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+
+        .summary-box {
+            background: #f0f7f2;
+            padding: 17px;
+            border-radius: 8px;
+        }
+
+        .summary-box span {
+            display: block;
+            font-size: 13px;
+            color: #66766c;
+            margin-bottom: 8px;
+        }
+
+        .summary-box strong {
+            font-size: 22px;
+        }
+
+        .table-wrapper {
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+
+        th, td {
+            padding: 13px;
+            text-align: left;
+            border-bottom: 1px solid #e5ebe7;
+        }
+
+        th {
+            background: #edf5ef;
+            color: #176b45;
+            font-size: 14px;
+        }
+
+        .status {
+            display: inline-block;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+
+        .normal {
+            background: #e2f4e7;
+            color: #176b45;
+        }
+
+        .alert {
+            background: #fde7e7;
+            color: #b42318;
+        }
+
+        .warning-text {
+            color: #b42318;
+            font-weight: bold;
+        }
+
+        .empty {
+            text-align: center;
+            padding: 35px;
+            color: #66766c;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="header">
+        <h1>Production Variance Report</h1>
+        <p>OrderAudit | Production Performance Monitoring</p>
+    </div>
+
+    <div class="container">
+
+        <a href="/reports" class="back-button">
+            Back to Reports
+        </a>
+
+        <div class="card">
+            <h2>Variance Monitoring</h2>
+            <p>
+                Compare planned production against actual output
+                and raw material consumption.
+            </p>
+            <p>
+                <strong>Allowed tolerance:</strong> ±3%.
+                Variances outside this range are flagged automatically.
+            </p>
+        </div>
+
+        <div th:if="${#lists.isEmpty(reports)}" class="card empty">
+            No production batches have been recorded yet.
+        </div>
+
+        <div th:each="report : ${reports}" class="card">
+
+            <h2 th:text="${report.productName}">
+                Product Name
+            </h2>
+
+            <p>
+                <strong>Batch Reference:</strong>
+                <span th:text="${report.batchReference}">
+                    BATCH-001
+                </span>
+            </p>
+
+            <div class="summary">
+
+                <div class="summary-box">
+                    <span>Planned Output</span>
+                    <strong th:text="${report.planned}">
+                        200
+                    </strong>
+                    <div>packets</div>
+                </div>
+
+                <div class="summary-box">
+                    <span>Actual Good Output</span>
+                    <strong th:text="${report.actual}">
+                        188
+                    </strong>
+                    <div>packets</div>
+                </div>
+
+                <div class="summary-box">
+                    <span>Damaged Packets</span>
+                    <strong th:text="${report.damaged}">
+                        6
+                    </strong>
+                    <div>packets</div>
+                </div>
+
+                <div class="summary-box">
+                    <span>Yield Variance</span>
+
+                    <strong th:text="|${report.yieldVariance}%|"
+                            th:classappend="${report.yieldAlert} ? 'warning-text' : ''">
+                        -6%
+                    </strong>
+
+                    <div>
+                        <span class="status"
+                              th:classappend="${report.yieldAlert} ? 'alert' : 'normal'"
+                              th:text="${report.yieldAlert} ? 'ALERT' : 'NORMAL'">
+                            ALERT
+                        </span>
+                    </div>
+                </div>
+
+            </div>
+
+            <h3>Raw Material Usage Variance</h3>
+
+            <div class="table-wrapper">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Raw Material</th>
+                            <th>Planned Qty</th>
+                            <th>Actual Qty</th>
+                            <th>Variance</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        <tr th:each="material : ${report.materials}">
+
+                            <td th:text="${material.name}">
+                                Flour
+                            </td>
+
+                            <td th:text="|${material.planned} ${material.unit}|">
+                                40 kg
+                            </td>
+
+                            <td th:text="|${material.actual} ${material.unit}|">
+                                40 kg
+                            </td>
+
+                            <td th:text="|${material.variance}%|"
+                                th:classappend="${material.alert} ? 'warning-text' : ''">
+                                0%
+                            </td>
+
+                            <td>
+                                <span class="status"
+                                      th:classappend="${material.alert} ? 'alert' : 'normal'"
+                                      th:text="${material.alert} ? 'ALERT' : 'NORMAL'">
+                                    NORMAL
+                                </span>
+                            </td>
+
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+        </div>
+
+    </div>
+
+</body>
+</html>

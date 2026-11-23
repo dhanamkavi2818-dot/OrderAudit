@@ -1,0 +1,256 @@
+
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>GST Invoices | OrderAudit</title>
+
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+
+    <style>
+        .invoice-container {
+            max-width: 1100px;
+            margin: 40px auto;
+            padding: 0 20px;
+            font-family: Arial, sans-serif;
+        }
+
+        .page-title {
+            color: #254d3c;
+            margin-bottom: 8px;
+        }
+
+        .subtitle {
+            color: #66756e;
+            margin-bottom: 25px;
+        }
+
+        .invoice-card {
+            background: white;
+            padding: 25px;
+            border-radius: 12px;
+            margin-bottom: 30px;
+            box-shadow: 0 3px 12px rgba(0,0,0,0.07);
+        }
+
+        .invoice-card h2 {
+            color: #254d3c;
+            margin-top: 0;
+        }
+
+        .table-scroll {
+            overflow-x: auto;
+        }
+
+        .invoice-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+
+        .invoice-table th {
+            background: #e8f1eb;
+            color: #254d3c;
+            text-align: left;
+            padding: 14px;
+        }
+
+        .invoice-table td {
+            padding: 14px;
+            border-bottom: 1px solid #e5e9e6;
+        }
+
+        .action-button {
+            background: #286647;
+            color: white;
+            border: none;
+            border-radius: 7px;
+            padding: 10px 16px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        .action-button:hover {
+            background: #1d5036;
+        }
+
+        .view-link {
+            color: #286647;
+            font-weight: bold;
+            text-decoration: none;
+        }
+
+        .success-message {
+            color: #217a48;
+            margin-bottom: 18px;
+        }
+
+        .error-message {
+            color: #bd3030;
+            margin-bottom: 18px;
+        }
+
+        .back-link {
+            display: inline-block;
+            margin-bottom: 20px;
+            color: #286647;
+            text-decoration: none;
+            font-weight: bold;
+        }
+
+        .status {
+            font-weight: bold;
+            color: #217a48;
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="invoice-container">
+
+    <a th:href="@{/}" class="back-link">
+        ← Back to Dashboard
+    </a>
+
+    <h1 class="page-title">GST Invoice Management</h1>
+
+    <p class="subtitle">
+        Generate invoices for dispatched sales orders
+        and view invoice history.
+    </p>
+
+    <p class="success-message"
+       th:if="${successMessage != null}"
+       th:text="${successMessage}">
+    </p>
+
+    <p class="error-message"
+       th:if="${error != null}"
+       th:text="${error}">
+    </p>
+
+    <!-- DISPATCHED ORDERS -->
+
+    <div class="invoice-card">
+
+        <h2>Generate GST Invoice</h2>
+
+        <div class="table-scroll">
+
+            <table class="invoice-table">
+
+                <thead>
+                    <tr>
+                        <th>Order ID</th>
+                        <th>Customer</th>
+                        <th>Product</th>
+                        <th>Quantity</th>
+                        <th>Status</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+
+                    <tr th:each="order : ${orders}"
+                        th:if="${order.status == 'DISPATCHED'}">
+
+                        <td th:text="${order.id}"></td>
+
+                        <td th:text="${order.customer.name}"></td>
+
+                        <td th:text="${order.product.productName}"></td>
+
+                        <td th:text="${order.quantity}"></td>
+
+                        <td class="status"
+                            th:text="${order.status}">
+                        </td>
+
+                        <td>
+                            <form th:action="@{/invoices/generate/{id}(id=${order.id})}"
+                                  method="post">
+
+                                <button type="submit"
+                                        class="action-button">
+                                    Generate Invoice
+                                </button>
+
+                            </form>
+                        </td>
+
+                    </tr>
+
+                </tbody>
+
+            </table>
+
+        </div>
+    </div>
+
+    <!-- INVOICE HISTORY -->
+
+    <div class="invoice-card">
+
+        <h2>Invoice History</h2>
+
+        <div class="table-scroll">
+
+            <table class="invoice-table">
+
+                <thead>
+                    <tr>
+                        <th>Invoice No.</th>
+                        <th>Customer</th>
+                        <th>Taxable Amount</th>
+                        <th>GST</th>
+                        <th>Total Amount</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+
+                    <tr th:each="invoice : ${invoices}">
+
+                        <td th:text="${invoice.invoiceNumber}"></td>
+
+                        <td th:text="${invoice.salesOrder.customer.name}"></td>
+
+                        <td th:text="${invoice.taxableAmount}"></td>
+
+                        <td th:text="${invoice.cgstAmount.add(invoice.sgstAmount).add(invoice.igstAmount)}"></td>
+
+                        <td th:text="${invoice.totalAmount}"></td>
+
+                        <td>
+                            <a class="view-link"
+                               th:href="@{/invoices/{id}(id=${invoice.id})}">
+                                View Invoice
+                            </a>
+                        </td>
+
+                    </tr>
+
+                    <tr th:if="${#lists.isEmpty(invoices)}">
+                        <td colspan="6">
+                            No invoices generated yet.
+                        </td>
+                    </tr>
+
+                </tbody>
+
+            </table>
+
+        </div>
+    </div>
+
+</div>
+
+</body>
+</html>

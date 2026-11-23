@@ -1,0 +1,368 @@
+
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>Payment Management | OrderAudit</title>
+
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+
+    <style>
+        .payment-container {
+            max-width: 1100px;
+            margin: 40px auto;
+            padding: 0 20px;
+            font-family: Arial, sans-serif;
+        }
+
+        .page-title {
+            color: #254d3c;
+            margin-bottom: 8px;
+        }
+
+        .subtitle {
+            color: #66756e;
+            margin-bottom: 25px;
+        }
+
+        .payment-card {
+            background: white;
+            padding: 25px;
+            border-radius: 12px;
+            margin-bottom: 30px;
+            box-shadow: 0 3px 12px rgba(0,0,0,0.07);
+        }
+
+        .payment-card h2 {
+            color: #254d3c;
+            margin-top: 0;
+        }
+
+        .payment-form {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 18px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .form-group label {
+            font-weight: bold;
+            color: #354d40;
+        }
+
+        .form-group input,
+        .form-group select {
+            padding: 12px;
+            border: 1px solid #cdd9d1;
+            border-radius: 7px;
+            font-size: 15px;
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        .save-button {
+            background: #286647;
+            color: white;
+            border: none;
+            border-radius: 7px;
+            padding: 13px 25px;
+            cursor: pointer;
+            font-size: 15px;
+        }
+
+        .save-button:hover {
+            background: #1d5036;
+        }
+
+        .form-actions {
+            grid-column: 1 / -1;
+        }
+
+        .table-scroll {
+            overflow-x: auto;
+        }
+
+        .payment-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+
+        .payment-table th {
+            background: #e8f1eb;
+            color: #254d3c;
+            text-align: left;
+            padding: 14px;
+        }
+
+        .payment-table td {
+            padding: 14px;
+            border-bottom: 1px solid #e5e9e6;
+        }
+
+        .outstanding {
+            color: #bd6b17;
+            font-weight: bold;
+        }
+
+        .paid {
+            color: #217a48;
+            font-weight: bold;
+        }
+
+        .success-message {
+            color: #217a48;
+            margin-bottom: 18px;
+        }
+
+        .error-message {
+            color: #bd3030;
+            margin-bottom: 18px;
+        }
+
+        .back-link {
+            display: inline-block;
+            margin-bottom: 20px;
+            color: #286647;
+            text-decoration: none;
+            font-weight: bold;
+        }
+
+        @media (max-width: 700px) {
+            .payment-form {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="payment-container">
+
+    <a th:href="@{/}" class="back-link">
+        ← Back to Dashboard
+    </a>
+
+    <h1 class="page-title">Payment Management</h1>
+
+    <p class="subtitle">
+        Record customer payments and track outstanding balances.
+    </p>
+
+    <p class="success-message"
+       th:if="${successMessage != null}"
+       th:text="${successMessage}">
+    </p>
+
+    <p class="error-message"
+       th:if="${error != null}"
+       th:text="${error}">
+    </p>
+
+    <!-- RECORD PAYMENT -->
+
+    <div class="payment-card">
+
+        <h2>Record New Payment</h2>
+
+        <form class="payment-form"
+              th:action="@{/payments/save}"
+              method="post">
+
+            <div class="form-group">
+                <label for="invoiceId">Invoice</label>
+
+                <select id="invoiceId"
+                        name="invoiceId"
+                        required>
+
+                    <option value="">Select Invoice</option>
+
+                    <option th:each="invoice : ${invoices}"
+                            th:if="${outstandingBalances[invoice.id].signum() > 0}"
+                            th:value="${invoice.id}"
+                            th:text="${invoice.invoiceNumber + ' - ' + invoice.salesOrder.customer.name}">
+                    </option>
+
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="amount">Payment Amount (₹)</label>
+
+                <input type="number"
+                       id="amount"
+                       name="amount"
+                       min="0.01"
+                       step="0.01"
+                       required
+                       placeholder="Enter payment amount">
+            </div>
+
+            <div class="form-group">
+                <label for="paymentMode">Payment Mode</label>
+
+                <select id="paymentMode"
+                        name="paymentMode"
+                        required>
+
+                    <option value="">Select Payment Mode</option>
+                    <option value="CASH">Cash</option>
+                    <option value="UPI">UPI</option>
+                    <option value="BANK_TRANSFER">Bank Transfer</option>
+                    <option value="CHEQUE">Cheque</option>
+
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="referenceNumber">
+                    Reference Number (Optional)
+                </label>
+
+                <input type="text"
+                       id="referenceNumber"
+                       name="referenceNumber"
+                       placeholder="Transaction reference">
+            </div>
+
+            <div class="form-actions">
+                <button type="submit" class="save-button">
+                    Record Payment
+                </button>
+            </div>
+
+        </form>
+    </div>
+
+    <!-- OUTSTANDING BALANCES -->
+
+    <div class="payment-card">
+
+        <h2>Invoice Outstanding Balances</h2>
+
+        <div class="table-scroll">
+
+            <table class="payment-table">
+
+                <thead>
+                    <tr>
+                        <th>Invoice No.</th>
+                        <th>Customer</th>
+                        <th>Invoice Total</th>
+                        <th>Amount Paid</th>
+                        <th>Outstanding</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+
+                    <tr th:each="invoice : ${invoices}">
+
+                        <td th:text="${invoice.invoiceNumber}"></td>
+
+                        <td th:text="${invoice.salesOrder.customer.name}"></td>
+
+                        <td th:text="${invoice.totalAmount}"></td>
+
+                        <td th:text="${invoice.totalAmount.subtract(outstandingBalances[invoice.id])}"></td>
+
+                        <td th:text="${outstandingBalances[invoice.id]}"></td>
+
+                        <td>
+                            <span class="paid"
+                                  th:if="${outstandingBalances[invoice.id].signum() == 0}">
+                                PAID
+                            </span>
+
+                            <span class="outstanding"
+                                  th:if="${outstandingBalances[invoice.id].signum() > 0}">
+                                OUTSTANDING
+                            </span>
+                        </td>
+
+                    </tr>
+
+                    <tr th:if="${#lists.isEmpty(invoices)}">
+                        <td colspan="6">
+                            No invoices available yet.
+                        </td>
+                    </tr>
+
+                </tbody>
+
+            </table>
+
+        </div>
+    </div>
+
+    <!-- PAYMENT HISTORY -->
+
+    <div class="payment-card">
+
+        <h2>Payment History</h2>
+
+        <div class="table-scroll">
+
+            <table class="payment-table">
+
+                <thead>
+                    <tr>
+                        <th>Payment ID</th>
+                        <th>Invoice No.</th>
+                        <th>Customer</th>
+                        <th>Amount</th>
+                        <th>Mode</th>
+                        <th>Reference</th>
+                        <th>Date</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+
+                    <tr th:each="payment : ${payments}">
+
+                        <td th:text="${payment.id}"></td>
+
+                        <td th:text="${payment.invoice.invoiceNumber}"></td>
+
+                        <td th:text="${payment.invoice.salesOrder.customer.name}"></td>
+
+                        <td th:text="${payment.amount}"></td>
+
+                        <td th:text="${payment.paymentMode}"></td>
+
+                        <td th:text="${payment.referenceNumber}"></td>
+
+                        <td th:text="${payment.paymentDate}"></td>
+
+                    </tr>
+
+                    <tr th:if="${#lists.isEmpty(payments)}">
+                        <td colspan="7">
+                            No payments recorded yet.
+                        </td>
+                    </tr>
+
+                </tbody>
+
+            </table>
+
+        </div>
+    </div>
+
+</div>
+
+</body>
+</html>

@@ -1,0 +1,83 @@
+
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OrderAudit | Customers</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+
+<div class="main-content">
+
+    <header class="topbar">
+        <h2>Customer Management</h2>
+        <a href="/" class="quick-card">Back to Dashboard</a>
+    </header>
+
+    <section class="welcome">
+        <h1>Add New Customer</h1>
+        <p>Enter the customer details below.</p>
+    </section>
+
+    <form th:action="@{/customers/save}" method="post" class="customer-form">
+
+        <input type="text" name="name" placeholder="Customer Name" required>
+
+        <select name="customerType" required>
+            <option value="">Select Customer Type</option>
+            <option value="Retailer">Retailer</option>
+            <option value="Distributor">Distributor</option>
+        </select>
+
+        <input type="text" name="phone" placeholder="Phone Number">
+        <input type="email" name="email" placeholder="Email Address">
+        <input type="text" name="address" placeholder="Address">
+        <input type="text" name="state" placeholder="State">
+        <input type="text" name="gstin" placeholder="GSTIN">
+
+        <button type="submit">Save Customer</button>
+
+    </form>
+
+    <h2 class="section-title">Customer List</h2>
+
+    <div class="customer-list">
+        <table>
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Name</th>
+                    <th>Type</th>
+                    <th>Phone</th>
+                    <th>State</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+
+            <tbody>
+                <tr th:each="customer : ${customers}">
+                    <td th:text="${customer.id}"></td>
+                    <td th:text="${customer.name}"></td>
+                    <td th:text="${customer.customerType}"></td>
+                    <td th:text="${customer.phone}"></td>
+                    <td th:text="${customer.state}"></td>
+                    <td>
+                        <a th:href="@{/customers/delete/{id}(id=${customer.id})}">
+                            Delete
+                        </a>
+                    </td>
+                </tr>
+
+                <tr th:if="${#lists.isEmpty(customers)}">
+                    <td colspan="6">No customers added yet.</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+</div>
+
+</body>
+</html>

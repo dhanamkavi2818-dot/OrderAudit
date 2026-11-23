@@ -1,0 +1,104 @@
+
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Raw Material Stock</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+
+<div class="container">
+
+    <h1>Raw Material Stock Management</h1>
+
+    <h2>Available Stock</h2>
+
+    <table>
+        <thead>
+            <tr>
+                <th>Raw Material</th>
+                <th>Unit</th>
+                <th>Available Quantity</th>
+            </tr>
+        </thead>
+
+        <tbody>
+            <tr th:each="material : ${materials}">
+                <td th:text="${material.materialName}"></td>
+                <td th:text="${material.unit}"></td>
+                <td th:text="${stockBalances.get(material.id)}"></td>
+            </tr>
+        </tbody>
+    </table>
+
+    <h2>Record Stock Transaction</h2>
+
+    <form th:action="@{/stock/save}" method="post"
+          class="customer-form">
+
+        <label>Raw Material</label>
+        <select name="rawMaterialId" required>
+            <option value="">Select Material</option>
+            <option th:each="material : ${materials}"
+                    th:value="${material.id}"
+                    th:text="${material.materialName}">
+            </option>
+        </select>
+
+        <label>Transaction Type</label>
+        <select name="transactionType" required>
+            <option value="PURCHASE">Purchase</option>
+            <option value="ISSUE">Production Usage</option>
+            <option value="ADJUSTMENT_IN">Opening Stock / Stock Added</option>
+            <option value="ADJUSTMENT_OUT">Stock Reduction</option>
+        </select>
+
+        <label>Quantity</label>
+        <input type="number" name="quantity"
+               step="0.001" min="0.001" required>
+
+        <label>Unit Cost (Optional)</label>
+        <input type="number" name="unitCost"
+               step="0.01" min="0">
+
+        <label>Reference</label>
+        <input type="text" name="reference"
+               placeholder="Example: Opening Stock">
+
+        <button type="submit">Save Transaction</button>
+
+    </form>
+
+    <h2>Stock Transaction History</h2>
+
+    <table>
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Material</th>
+                <th>Transaction Type</th>
+                <th>Quantity</th>
+                <th>Unit Cost</th>
+                <th>Reference</th>
+                <th>Date</th>
+            </tr>
+        </thead>
+
+        <tbody>
+            <tr th:each="transaction : ${transactions}">
+                <td th:text="${transaction.id}"></td>
+                <td th:text="${transaction.rawMaterial.materialName}"></td>
+                <td th:text="${transaction.transactionType}"></td>
+                <td th:text="${transaction.quantity}"></td>
+                <td th:text="${transaction.unitCost}"></td>
+                <td th:text="${transaction.reference}"></td>
+                <td th:text="${transaction.transactionDate}"></td>
+            </tr>
+        </tbody>
+    </table>
+
+</div>
+
+</body>
+</html>

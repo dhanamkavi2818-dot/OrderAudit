@@ -1,0 +1,183 @@
+
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>Finished Goods Inventory | OrderAudit</title>
+
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+
+    <style>
+        .inventory-container {
+            max-width: 1100px;
+            margin: 40px auto;
+            padding: 0 20px;
+            font-family: Arial, sans-serif;
+        }
+
+        .inventory-title {
+            color: #254d3c;
+            margin-bottom: 8px;
+        }
+
+        .inventory-subtitle {
+            color: #66756e;
+            margin-bottom: 30px;
+        }
+
+        .inventory-card {
+            background: white;
+            padding: 25px;
+            border-radius: 12px;
+            margin-bottom: 30px;
+            box-shadow: 0 3px 12px rgba(0,0,0,0.07);
+        }
+
+        .inventory-card h2 {
+            color: #254d3c;
+            margin-top: 0;
+        }
+
+        .inventory-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+
+        .inventory-table th {
+            background: #e8f1eb;
+            color: #254d3c;
+            text-align: left;
+            padding: 14px;
+        }
+
+        .inventory-table td {
+            padding: 14px;
+            border-bottom: 1px solid #e5e9e6;
+        }
+
+        .stock-quantity {
+            color: #217a48;
+            font-weight: bold;
+        }
+
+        .back-link {
+            display: inline-block;
+            margin-bottom: 20px;
+            color: #286647;
+            text-decoration: none;
+            font-weight: bold;
+        }
+
+        .table-scroll {
+            overflow-x: auto;
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="inventory-container">
+
+    <a href="/" class="back-link">
+        ← Back to Dashboard
+    </a>
+
+    <h1 class="inventory-title">
+        Finished Goods Inventory
+    </h1>
+
+    <p class="inventory-subtitle">
+        Monitor finished product stock and inventory movements.
+    </p>
+
+    <div class="inventory-card">
+
+        <h2>Available Finished Stock</h2>
+
+        <div class="table-scroll">
+            <table class="inventory-table">
+
+                <thead>
+                    <tr>
+                        <th>Product</th>
+                        <th>Pack Size</th>
+                        <th>Available Packets</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    <tr th:each="product : ${products}">
+                        <td th:text="${product.productName}">
+                            Murukku
+                        </td>
+
+                        <td th:text="${product.packSize}">
+                            200g
+                        </td>
+
+                        <td class="stock-quantity"
+                            th:text="${availableStock[product.id]}">
+                            238
+                        </td>
+                    </tr>
+                </tbody>
+
+            </table>
+        </div>
+
+    </div>
+
+    <div class="inventory-card">
+
+        <h2>Stock Transaction History</h2>
+
+        <div class="table-scroll">
+            <table class="inventory-table">
+
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Product</th>
+                        <th>Transaction Type</th>
+                        <th>Quantity</th>
+                        <th>Reference</th>
+                        <th>Date</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    <tr th:each="transaction : ${transactions}">
+
+                        <td th:text="${transaction.id}"></td>
+
+                        <td th:text="${transaction.product.productName}">
+                        </td>
+
+                        <td th:text="${transaction.transactionType}">
+                        </td>
+
+                        <td th:text="${transaction.quantity}">
+                        </td>
+
+                        <td th:text="${transaction.reference}">
+                        </td>
+
+                        <td th:text="${transaction.transactionDate}">
+                        </td>
+
+                    </tr>
+                </tbody>
+
+            </table>
+        </div>
+
+    </div>
+
+</div>
+
+</body>
+</html>

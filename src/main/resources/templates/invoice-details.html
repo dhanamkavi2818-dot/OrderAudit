@@ -1,0 +1,304 @@
+
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>Invoice Details | OrderAudit</title>
+
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+
+    <style>
+        .invoice-container {
+            max-width: 850px;
+            margin: 40px auto;
+            padding: 30px;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 3px 15px rgba(0,0,0,0.08);
+            font-family: Arial, sans-serif;
+        }
+
+        .invoice-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            border-bottom: 2px solid #286647;
+            padding-bottom: 20px;
+            gap: 20px;
+        }
+
+        h1, h2 {
+            color: #254d3c;
+        }
+
+        .invoice-label {
+            color: #66756e;
+            font-size: 14px;
+        }
+
+        .invoice-info {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 25px;
+            margin: 30px 0;
+        }
+
+        .invoice-info p {
+            margin: 8px 0;
+        }
+
+        .invoice-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        .invoice-table th {
+            background: #e8f1eb;
+            color: #254d3c;
+            padding: 13px;
+            text-align: left;
+        }
+
+        .invoice-table td {
+            padding: 13px;
+            border-bottom: 1px solid #e5e9e6;
+        }
+
+        .totals {
+            max-width: 350px;
+            margin: 30px 0 20px auto;
+        }
+
+        .total-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 0;
+            border-bottom: 1px solid #e5e9e6;
+        }
+
+        .grand-total {
+            font-size: 20px;
+            font-weight: bold;
+            color: #254d3c;
+            border-top: 2px solid #286647;
+            margin-top: 10px;
+        }
+
+        .action-button {
+            display: inline-block;
+            background: #286647;
+            color: white;
+            border: none;
+            border-radius: 7px;
+            padding: 12px 20px;
+            text-decoration: none;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        .action-button:hover {
+            background: #1d5036;
+        }
+
+        .actions {
+            margin-top: 30px;
+            display: flex;
+            gap: 12px;
+        }
+
+        @media (max-width: 600px) {
+            .invoice-info {
+                grid-template-columns: 1fr;
+            }
+
+            .invoice-header {
+                flex-direction: column;
+            }
+        }
+
+        @media print {
+            body {
+                background: white;
+            }
+
+            .invoice-container {
+                box-shadow: none;
+                margin: 0;
+                max-width: 100%;
+            }
+
+            .actions {
+                display: none;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="invoice-container">
+
+    <div class="invoice-header">
+
+        <div>
+            <h1>OrderAudit</h1>
+            <p class="invoice-label">
+                Food Factory Order Management System
+            </p>
+            <h2>GST Invoice</h2>
+        </div>
+
+        <div>
+            <p>
+                <strong>Invoice No:</strong>
+                <span th:text="${invoice.invoiceNumber}"></span>
+            </p>
+
+            <p>
+                <strong>Invoice Date:</strong>
+                <span th:text="${invoice.invoiceDate}"></span>
+            </p>
+
+            <p>
+                <strong>Order ID:</strong>
+                <span th:text="${invoice.salesOrder.id}"></span>
+            </p>
+        </div>
+
+    </div>
+
+    <div class="invoice-info">
+
+        <div>
+            <h2>Bill To</h2>
+
+            <p>
+                <strong>Customer:</strong>
+                <span th:text="${invoice.salesOrder.customer.name}"></span>
+            </p>
+
+            <p>
+                <strong>Address:</strong>
+                <span th:text="${invoice.salesOrder.customer.address}"></span>
+            </p>
+
+            <p>
+                <strong>State:</strong>
+                <span th:text="${invoice.salesOrder.customer.state}"></span>
+            </p>
+
+            <p>
+                <strong>GSTIN:</strong>
+                <span th:text="${invoice.salesOrder.customer.gstin}"></span>
+            </p>
+        </div>
+
+        <div>
+            <h2>Order Details</h2>
+
+            <p>
+                <strong>Product:</strong>
+                <span th:text="${invoice.salesOrder.product.productName}"></span>
+            </p>
+
+            <p>
+                <strong>Pack Size:</strong>
+                <span th:text="${invoice.salesOrder.product.packSize}"></span>
+            </p>
+
+            <p>
+                <strong>GST Rate:</strong>
+                <span th:text="${invoice.salesOrder.product.gstRate}"></span>%
+            </p>
+        </div>
+
+    </div>
+
+    <table class="invoice-table">
+
+        <thead>
+            <tr>
+                <th>Product</th>
+                <th>Quantity</th>
+                <th>Unit Price (₹)</th>
+                <th>Taxable Amount (₹)</th>
+            </tr>
+        </thead>
+
+        <tbody>
+            <tr>
+                <td th:text="${invoice.salesOrder.product.productName}"></td>
+
+                <td th:text="${invoice.salesOrder.quantity}"></td>
+
+                <td th:text="${invoice.salesOrder.product.sellingPrice}"></td>
+
+                <td th:text="${invoice.taxableAmount}"></td>
+            </tr>
+        </tbody>
+
+    </table>
+
+    <div class="totals">
+
+        <div class="total-row">
+            <span>Taxable Amount</span>
+            <span th:text="'₹' + ${invoice.taxableAmount}"></span>
+        </div>
+
+        <div class="total-row">
+            <span>CGST</span>
+            <span th:text="'₹' + ${invoice.cgstAmount}"></span>
+        </div>
+
+        <div class="total-row">
+            <span>SGST</span>
+            <span th:text="'₹' + ${invoice.sgstAmount}"></span>
+        </div>
+
+        <div class="total-row">
+            <span>IGST</span>
+            <span th:text="'₹' + ${invoice.igstAmount}"></span>
+        </div>
+
+        <div class="total-row grand-total">
+            <span>Total Amount</span>
+            <span th:text="'₹' + ${invoice.totalAmount}"></span>
+        </div>
+
+    </div>
+
+    
+<div class="actions">
+
+    <a th:href="@{/invoices}" class="action-button">
+        Back to Invoices
+    </a>
+
+    <button type="button"
+            class="action-button"
+            onclick="window.print()">
+        Print Invoice
+    </button>
+
+    <a th:href="@{/invoices/{id}/pdf(id=${invoice.id})}"
+       class="action-button">
+        Download PDF
+    </a>
+
+
+</a>
+
+
+</div>
+
+
+</div>
+
+</body>
+</html>

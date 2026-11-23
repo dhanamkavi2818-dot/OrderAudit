@@ -1,0 +1,160 @@
+
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Production Management</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+
+<body>
+<div class="container">
+
+    <h1>Production Management</h1>
+    <p>Record production batches and actual raw material usage.</p>
+
+    <p th:if="${success}" th:text="${success}"
+       style="color:green;"></p>
+
+    <p th:if="${error}" th:text="${error}"
+       style="color:red;"></p>
+
+    <h2>Create Production Run</h2>
+
+    <form th:action="@{/production/save}"
+          method="post" class="customer-form">
+
+        
+<label>Batch Reference</label>
+<input type="text"
+       name="batchReference"
+       placeholder="Example: MURUKKU-BATCH-001"
+       maxlength="100"
+       required>
+
+        <label>Select BOM Recipe</label>
+        <select name="bomId" id="bomSelect" required
+                onchange="showMaterials()">
+            <option value="">Select BOM</option>
+            <option th:each="bom : ${boms}"
+                    th:value="${bom.id}"
+                    th:text="${bom.product.productName
+                        + ' - ' + bom.batchOutputPackets
+                        + ' packets'}">
+            </option>
+        </select>
+
+        <label>Actual Good Packets Produced</label>
+        <input type="number" name="actualOutputPackets"
+       min="1" required>
+
+        <label>Damaged Packets</label>
+        <input type="number" name="damagedPackets"
+               min="0" value="0" required>
+
+        <label>Labour Cost (₹)</label>
+        <input type="number" name="labourCost"
+               min="0" step="0.01" value="0" required>
+
+        <label>Overhead Cost (₹)</label>
+        <input type="number" name="overheadCost"
+               min="0" step="0.01" value="0" required>
+
+        <h2>Actual Raw Material Usage</h2>
+
+        <p>Enter the quantity actually consumed during production.</p>
+
+       <div th:each="bom : ${boms}"
+     th:id="'bom-materials-' + ${bom.id}"
+     class="bom-material-group"
+     style="display:none;">
+
+    <div th:each="item : ${itemsByBom.get(bom.id)}">
+
+        <label th:text="${item.rawMaterial.materialName
+            + ' (' + item.rawMaterial.unit + ')'}">
+        </label>
+
+        <input type="number"
+               th:name="'material_' + ${item.rawMaterial.id}"
+               th:value="${item.quantityRequired}"
+               step="0.001"
+               min="0.001"
+               class="material-input"
+               disabled>
+
+    </div>
+
+</div>
+        <button type="submit" id="saveProductionBtn">
+    Save Production Run
+</button>
+
+    </form>
+
+    <h2>Production History</h2>
+
+    <table>
+        <thead>
+            <tr>
+                <th>Run ID</th>
+                <th>Product</th>
+                <th>Good Packets</th>
+                <th>Damaged</th>
+                <th>Labour Cost</th>
+                <th>Overhead</th>
+                <th>Date</th>
+            </tr>
+        </thead>
+
+        <tbody>
+            <tr th:each="run : ${productionRuns}">
+                <td th:text="${run.id}"></td>
+                <td th:text="${run.bom.product.productName}"></td>
+                <td th:text="${run.actualOutputPackets}"></td>
+                <td th:text="${run.damagedPackets}"></td>
+                <td th:text="${run.labourCost}"></td>
+                <td th:text="${run.overheadCost}"></td>
+                
+<td th:text="${run.productionDate != null ? #temporals.format(run.productionDate, 'dd MMM yyyy, hh:mm a') : '-'}"></td>
+
+            </tr>
+        </tbody>
+    </table>
+
+    
+<div style="margin: 25px 0;">
+    <a th:href="@{/}" class="back-dashboard-btn">
+        ← Back to Dashboard
+    </a>
+</div>
+
+
+</div>
+
+<script>
+function showMaterials() {
+    const selectedBom = document.getElementById("bomSelect").value;
+
+    document.querySelectorAll(".bom-material-group")
+        .forEach(group => {
+            const selected = group.id === "bom-materials-" + selectedBom;
+
+            group.style.display = selected ? "block" : "none";
+
+            group.querySelectorAll("input").forEach(input => {
+                input.disabled = !selected;
+                input.required = selected;
+            });
+        });
+}
+document.querySelector("form").addEventListener("submit", function () {
+    const button = document.getElementById("saveProductionBtn");
+
+    button.disabled = true;
+    button.textContent = "Saving Production...";
+});
+</script>
+
+</body>
+</html>
