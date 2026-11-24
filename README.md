@@ -62,23 +62,50 @@ These are demonstration-only accounts configured in Spring Security.
 
 ## Database Setup
 
-Create a MySQL database:
 
-```sql
-CREATE DATABASE order_audit;
-```
+## Database Setup
 
-Copy:
+1. Install MySQL Server 8.0 or later.
+2. Open MySQL Workbench.
+3. Create a new, empty database:
 
-`src/main/resources/application.properties.example`
+   ```sql
+   CREATE DATABASE orderaudit;
+   USE orderaudit;
+   ```
 
-to:
+4. Open the following SQL file in MySQL Workbench:
 
-`src/main/resources/application.properties`
+   `database/orderaudit_sample.sql`
 
-Update the MySQL username and password in the new file.
+5. Select the orderaudit database and execute the entire SQL script.
 
-The actual configuration file is excluded from Git to protect local database credentials.
+   Import only into an empty database, as the script contains
+   DROP TABLE statements.
+
+6. Copy `src/main/resources/application.properties.example`
+   and rename the copy to `application.properties`.
+
+7. Replace `YOUR_MYSQL_PASSWORD` with your local MySQL password.
+
+### Sample Database
+
+The sample database contains 12 tables with preloaded
+demonstration records, including:
+
+- Customers and products
+- Raw materials and BOM
+- Production batches and material consumption
+- Inventory transactions
+- Sales orders
+- GST invoices and payments
+
+The sample data represents the completed benchmark scenario
+provided in the internship problem statement.
+
+The database import has been successfully tested using
+a separate MySQL database.
+
 
 ## Run the Application
 
