@@ -237,3 +237,12 @@ Further improvements may include:
 Dhanalakshmi
 
 Developed as part of the NIT Trichy Winter Internship 2026 application.
+## Demo Video
+
+The demo video demonstrates the OrderAudit system using
+the benchmark scenario provided in the NIT Trichy
+Winter Internship problem statement.
+
+[Watch the Demo Video](https://drive.google.com/file/d/1AuSz2ZNDBX7EgPbzKTqaj-r1bkxDPXer/view?usp=sharing)
+
+Duration: 7 minutes 21 seconds
